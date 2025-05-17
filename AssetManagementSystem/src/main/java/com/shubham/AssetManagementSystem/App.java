@@ -51,6 +51,16 @@ public class App {
 	
 	public void deleteAsset(Integer id) {
 		
+		AssetManagementInfo  assetManagementInfo  = null;
+
+		Session session = sessionObject();
+		
+		assetManagementInfo = session.get(AssetManagementInfo.class,id);
+			
+		session.beginTransaction();
+		session.delete(assetManagementInfo);
+		session.getTransaction().commit();
+		session.close();
 	     
 	}
 	
