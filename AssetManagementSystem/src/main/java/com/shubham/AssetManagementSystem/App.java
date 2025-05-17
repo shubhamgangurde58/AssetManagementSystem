@@ -5,15 +5,13 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import java.util.List;
-/**
- * Hello world!
- */
+
 public class App {
 	
 	  AssetManagementInfo assetManagementInfo = new AssetManagementInfo();
 	  static Scanner scanner = new Scanner(System.in);
 	  
-	 public Session sessionObject() {
+	 public Session getConnection() {
 		 
 		 	Configuration configuration = new Configuration();
 	        configuration.configure();
@@ -38,7 +36,7 @@ public class App {
         System.out.println("Enter the Purchase Date :=");
         assetManagementInfo.setPurchaseDate(scanner.next());
         
-        Session session =  sessionObject();
+        Session session =  getConnection();
         
         session.getTransaction();
         session.save(assetManagementInfo);
@@ -53,7 +51,7 @@ public class App {
 		
 		AssetManagementInfo  assetManagementInfo  = null;
 
-		Session session = sessionObject();
+		Session session = getConnection();
 		
 		assetManagementInfo = session.get(AssetManagementInfo.class,id);
 			
@@ -61,11 +59,34 @@ public class App {
 		session.delete(assetManagementInfo);
 		session.getTransaction().commit();
 		session.close();
+		
+		System.out.println("Asset Record Deleted Successfully !!!");
 	     
 	}
 	
 	public void updateAsset(int id) {
 		
+		AssetManagementInfo  assetManagementInfo  = null;
+
+		Session session = getConnection();
+		
+		assetManagementInfo = session.get(AssetManagementInfo.class,id);
+		
+			System.out.println("Enter the Asset Name :=");
+	        assetManagementInfo.setAssetName(scanner.next());
+	        System.out.println("Enter the Asset Type :=");
+	        assetManagementInfo.setAssetType(scanner.next());
+	        System.out.println("Enter the Serial Number:=");
+	        assetManagementInfo.setSerialNumber(scanner.next());
+	        System.out.println("Enter the Purchase Date :=");
+	        assetManagementInfo.setPurchaseDate(scanner.next());
+			
+		session.beginTransaction();
+		session.update(assetManagementInfo);
+		session.getTransaction().commit();
+		session.close();
+		
+		System.out.println("Asset Record Updated Successfully !!!");
 		
 	}
 	
