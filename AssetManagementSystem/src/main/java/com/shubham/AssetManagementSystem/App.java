@@ -4,6 +4,9 @@ import java.util.Scanner;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+
+import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 
 public class App {
@@ -24,54 +27,16 @@ public class App {
 	        return session;	 
 	 }
      
+	 public void closeConnection(Session session) {
+		 
+		 	session.getTransaction().commit();
+			session.close();
+	 }
       
 	public void addAsset() {
 		
-        System.out.println("Enter the Asset Name :=");
-        assetManagementInfo.setAssetName(scanner.next());
-        System.out.println("Enter the Asset Type :=");
-        assetManagementInfo.setAssetType(scanner.next());
-        System.out.println("Enter the Serial Number:=");
-        assetManagementInfo.setSerialNumber(scanner.next());
-        System.out.println("Enter the Purchase Date :=");
-        assetManagementInfo.setPurchaseDate(scanner.next());
-        
-        Session session =  getConnection();
-        
-        session.getTransaction();
-        session.save(assetManagementInfo);
-        session.beginTransaction().commit();
-        
-        session.close();
-        System.out.println("Asset info insert Successfully !!!");      
-		
-	}
-	
-	public void deleteAsset(Integer id) {
-		
-		AssetManagementInfo  assetManagementInfo  = null;
-
-		Session session = getConnection();
-		
-		assetManagementInfo = session.get(AssetManagementInfo.class,id);
+		try {
 			
-		session.beginTransaction();
-		session.delete(assetManagementInfo);
-		session.getTransaction().commit();
-		session.close();
-		
-		System.out.println("Asset Record Deleted Successfully !!!");
-	     
-	}
-	
-	public void updateAsset(int id) {
-		
-		AssetManagementInfo  assetManagementInfo  = null;
-
-		Session session = getConnection();
-		
-		assetManagementInfo = session.get(AssetManagementInfo.class,id);
-		
 			System.out.println("Enter the Asset Name :=");
 	        assetManagementInfo.setAssetName(scanner.next());
 	        System.out.println("Enter the Asset Type :=");
@@ -80,19 +45,108 @@ public class App {
 	        assetManagementInfo.setSerialNumber(scanner.next());
 	        System.out.println("Enter the Purchase Date :=");
 	        assetManagementInfo.setPurchaseDate(scanner.next());
+	        
+	        Session session =  getConnection();
+	 
+	        session.beginTransaction();
+	        session.save(assetManagementInfo);
+	        closeConnection(session);
+	        
+	        System.out.println("Asset info insert Successfully !!!");   
 			
-		session.beginTransaction();
-		session.update(assetManagementInfo);
-		session.getTransaction().commit();
-		session.close();
+		}catch (Exception e) {
+				System.out.println(e.getMessage());
+		}	
+	}
+	
+	public void deleteAsset()  {
 		
-		System.out.println("Asset Record Updated Successfully !!!");
+		try {
+			
+			AssetManagementInfo  assetManagementInfo  = null;
+			
+  			System.out.println("Delete Asset to Enter the Asset id := ");
+  			int id = scanner.nextInt();
+			
+			Session session = getConnection();
+			
+			assetManagementInfo = session.get(AssetManagementInfo.class,id);
+				
+			session.beginTransaction();
+			session.delete(assetManagementInfo);
+			closeConnection(session);
+			
+			System.out.println("Asset Record Deleted Successfully !!!");
+			
+		} catch (Exception e) {
+			
+			System.out.println(e.getMessage());
+			
+		}
+		
+	
+		
+	     
+	}
+	
+	public void updateAsset() {
+		
+	  try {
+			
+			AssetManagementInfo  assetManagementInfo  = null;
+			
+  			System.out.println("Update Asset to Enter the Asset id := ");
+  			int id = scanner.nextInt();
+
+			Session session = getConnection();
+			
+			assetManagementInfo = session.get(AssetManagementInfo.class,id);
+			
+			
+				System.out.println("Enter the Asset Name :=");
+		        assetManagementInfo.setAssetName(scanner.next());
+		        System.out.println("Enter the Asset Type :=");
+		        assetManagementInfo.setAssetType(scanner.next());
+		        System.out.println("Enter the Serial Number:=");
+		        assetManagementInfo.setSerialNumber(scanner.next());
+		        System.out.println("Enter the Purchase Date :=");
+		        assetManagementInfo.setPurchaseDate(scanner.next());
+				
+			session.beginTransaction();
+			session.update(assetManagementInfo);
+			closeConnection(session);
+			
+			System.out.println("Asset Record Updated Successfully !!!");
+			
+		}catch (Exception e) {
+			System.out.println(e.getMessage());
+		}	
 		
 	}
 	
 	public void viewAsset( ) {
 		
+	  try {
+		  
+		  
+		  	Session session = getConnection();
+			session.beginTransaction();
 			
+	        List<AssetManagementInfo> assetRecord = session.createQuery("from AssetManagementInfo", AssetManagementInfo.class).getResultList();
+	        
+	        for (int i = 0; i < assetRecord.size(); i++) {
+	        	
+	            AssetManagementInfo assetManagementInfo = assetRecord.get(i); 
+	            System.out.println("Asset ID: " + assetManagementInfo.getAssetId() + " , Asset Name: " + assetManagementInfo.getAssetName() + " , Asset Type: " + assetManagementInfo.getAssetType() + " , Serial Number: " + assetManagementInfo.getSerialNumber() + " , Purchase Date: " + assetManagementInfo.getPurchaseDate());
+	        }
+	        
+	       closeConnection(session);
+			
+		} catch (Exception e) {
+				System.out.println(e.getMessage());
+		}
+		
+		
 	}
 	
     public static void main(String[] args) {
@@ -105,19 +159,17 @@ public class App {
       do {
     	  
 	    	 System.out.println("\n1. addAsset \n2. deleteAsset \n3. updateAsset \n4. viewAsset \n5. Exit \nEnter your Choice :=");
-	         int key = scanner.nextInt();
+	         int choice = scanner.nextInt();
 	          
-	        switch (key) {
+	        switch (choice) {
 	  		case 1: 
 	  			app.addAsset();
 	  			break;
 	  		case 2:
-	  			System.out.println("Delete Asset to Enter the Asset id := ");
-	  			app.deleteAsset(scanner.nextInt());
+	  			app.deleteAsset();
 	  			break;
 	  		case 3: 
-	  			System.out.println("Update Asset to Enter the Asset id := ");
-	  			app.updateAsset(scanner.nextInt());
+	  			app.updateAsset();
 	  			break;
 	  		case 4:
 	  			app.viewAsset();
@@ -127,13 +179,13 @@ public class App {
 	  			break;
 	  			
 	  		default:
-	  			throw new IllegalArgumentException("Unexpected value: " + key);
+	  			throw new IllegalArgumentException("Unexpected value: " + choice);
 	  		}     
 	    	  
 	        System.out.println("\nContinue to enter  1/yes and 0/no :=");
 	        a = scanner.nextInt();
 			
-	} while (a==1);
+	} while (a!=0);
            
     }
 }
